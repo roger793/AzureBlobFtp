@@ -77,7 +77,7 @@ while read LINE; do
         echo "
         <tr>
             <td class='pl-2 pr-2'>${userInfo[0]}</td>
-            <td class='pl-2 pr-2'>${userInfo[5]}</td>
+            <td class='pl-2 pr-2'>${userInfo[5]%/./}</td>
             <td class='pl-2 pr-1 text-right' style='width:80px;'>
                 <form action='index.sh' method='get'>
                     <input type='hidden' name='option' value='delete'>
@@ -104,8 +104,8 @@ echo "
             <input class='form-check-input' type='checkbox' id='makeSupervisor'>
             <label class='form-check-label' for='makeSupervisor'>New user is supervisor</label>  
         </div>
-        <button type='submit' class='btn btn-outline-primary' id='create'>Create</button>
-        <button type='submit' class='btn btn-outline-primary' id='change' hidden>Change</button>
+        <button type='submit' class='btn btn-primary' id='create'>Create</button>
+        <button type='submit' class='btn btn-primary' id='change' hidden>Change</button>
         <button type='button' class='btn btn-outline-secondary' id='cancel' hidden>Cancel</button>
     </form>
 </div>

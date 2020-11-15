@@ -4,7 +4,7 @@ function notify(message) {
 }
 
 $(document).ready(function () {
-    $('.toast').toast({ delay:3000 });
+    $('.toast').toast({ delay:7000 });
 
     $('table .btn-outline-info').click(function() {
         $('#option').val('change');
@@ -20,7 +20,7 @@ $(document).ready(function () {
         $('#cancel')
             .removeAttr('hidden')
             .show();
-        $('#password').focus(); 
+        $('#password').focus();
     });
 
     $('#cancel').click(function() {

@@ -10,10 +10,6 @@
 <script src='./index.js'></script>
 </head>
 
-<script>
-    notify('Levy is testing toasts');
-</script>
-
 <body>
 <div class='container pt-5' aria-live='polite' aria-atomic='true'>
     <div class='toast mt-3 mr-3' style='position:absolute; top:0; right:0;'>
@@ -63,8 +59,8 @@
             <input class='form-check-input' type='checkbox' id='makeSupervisor'>
             <label class='form-check-label' for='makeSupervisor'>New user is supervisor</label>  
         </div>
-        <button type='submit' class='btn btn-outline-primary' id='create'>Create</button>
-        <button type='submit' class='btn btn-outline-primary' id='change' hidden>Change</button>
+        <button type='submit' class='btn btn-primary' id='create'>Create</button>
+        <button type='submit' class='btn btn-primary' id='change' hidden>Change</button>
         <button type='button' class='btn btn-outline-secondary' id='cancel' hidden>Cancel</button>
     </form>
 
