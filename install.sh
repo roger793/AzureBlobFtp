@@ -78,7 +78,7 @@ CertFile	/ftp/ftp.pem
 PureDB	/ftp/ftp.pdb" >> /etc/pure-ftpd/pure-ftpd.conf
 
 chown -R ftpuser:ftpusers /ftp/
-find /ftp -type d -exec chmod 2760 {} \+
+find /ftp -type d -exec chmod 2770 {} \+
 find /ftp -type f -exec chmod 640 {} \+
 
 rm /var/www/html/*
