@@ -93,9 +93,6 @@ done < $FILE
 
 echo "
     </table><hr/>
-"
-
-echo "
     <form action='index.sh' method='get' style='max-width:300px;'>
         <div class='form-group' id='guide'>Create new user:</div>
         <div class='form-group'>
