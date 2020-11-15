@@ -61,6 +61,6 @@ Once deployed, you can browse to the DNS name for your VM. You can get that from
 
 Once you are logged in, supply a username and password and click "Create". You can easily delete an account or change its password by clicking the respective links next to each account. Note: deleting an account does not remove the files for that account.
 
-Once the account is created, you can login via FTP. The setup script setup the server to FTPS (FTP over TLS) by default on server to securely transfer files. Set your FTP client to active mode rather than passive, and use explicit TLS rather than implicit TLS to connect.
+Once the account is created, you can login via FTP. The setup script setup the server to FTPS (FTP over TLS) by default on server to securely transfer files. Set your FTP client to passive mode, and use explicit TLS to connect.
 
 Once connected, you can securely transfer files to and from Azure Blob storage via FTP!

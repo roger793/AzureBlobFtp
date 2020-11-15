@@ -4,11 +4,13 @@
 
 echo "Content-type: text/html"
 echo ""
-echo "<!DOCTYPE html>
-<html>
+echo "<!doctype html>
+<html lang='en'>
 <head>
-<meta charset="UTF-8">
+<meta charset='UTF-8'>
 <title>Azure Blob Storage FTP Server</title>
+<meta name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no'>
+<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css' integrity='sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2' crossorigin='anonymous'>
 </head>
 <body>"
 
@@ -21,10 +23,16 @@ eval `echo "${POST_DATA}"|tr '&' ';'`
 
 case $option in
         "add") #Add a client
-                ( echo ${password} ; echo ${password} ) | pure-pw useradd $username -f /ftp/ftp.passwd -u ftpuser -d /ftp/ftp-files/$username > /dev/null 2>&1
-                mkdir /ftp/ftp-files/$username
+                ( echo ${password} ; echo ${password} ) | pure-pw useradd $username -f /ftp/ftp.passwd -u ftpuser -d /ftp/ftp-files/staging/$username > /dev/null 2>&1
+                mkdir /ftp/ftp-files/staging/$username
                 pure-pw mkdb  /ftp/ftp.pdb -f /ftp/ftp.passwd
-                echo "<h3>Account created for <span style='color:red'>$username</span> added.</h3>"
+                echo "<h3>Account created for dealer <span style='color:red'>$username</span> added.</h3>"
+        ;;
+        "addsup") #Add a supervisor
+                ( echo ${password} ; echo ${password} ) | pure-pw useradd $username -f /ftp/ftp.passwd -u ftpuser -d /ftp/ftp-files/import > /dev/null 2>&1
+                mkdir /ftp/ftp-files/import
+                pure-pw mkdb  /ftp/ftp.pdb -f /ftp/ftp.passwd
+                echo "<h3>Account created for supervisor <span style='color:red'>$username</span> added.</h3>"
         ;;
         "delete") #Revoke a client
                 pure-pw userdel $username -f /ftp/ftp.passwd > /dev/null 2>&1
@@ -56,12 +64,35 @@ echo "<hr>"
 
 echo "
 <form action='index.sh' method='get'>
-<input type='hidden' name='option' value='add'>
-Username: <input type='text' name='username'><br/>
-Password: <input type='password' name='password'><br/>
-<input type='submit' value='Create'>
+  <div class='form-group'>
+    <input type='hidden' name='option' id='option' value='add'>
+    <input type='text' class='form-control' name='username' placeholder='Username'>
+  </div>
+  <div class='form-group'>
+    <input type='password' class='form-control' name='password' placeholder='Password'>
+  </div>
+  <div class='form-group'>
+    <input type='checkbox' class='form-check-input' id='makeSupervisor'>
+    <label class='form-check-label' for='makeSupervisor'>New user is supervisor</label>  
+  </div>
+  <button type='submit' class='btn btn-primary'>Create</button>
 </form>
 "
 
-echo "</body></html>"
+echo "
+<script>
+$(document).ready(function () {
+  $('#makeSupervisor').change(function () {
+    $('#option').val($(this).prop('checked') ? 'addsup' : 'add');
+  });
+});
+</script>
+"
+
+echo "
+<script src='https://code.jquery.com/jquery-3.5.1.slim.min.js' integrity='sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj' crossorigin='anonymous'></script>
+<script src='https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js' integrity='sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx' crossorigin='anonymous'></script>
+</body></html>
+"
+
 exit 0
