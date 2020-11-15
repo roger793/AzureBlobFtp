@@ -12,6 +12,9 @@ do
 		--key=*)
 		KEY="${i#*=}"
 		;;
+		--adminuser=*)
+		ADMINUSER="${i#*=}"
+		;;
 		--adminpassword=*)
 		ADMINPASSWORD="${i#*=}"
 		;;		
@@ -32,6 +35,7 @@ rm /etc/init.d/pure-ftpd
 
 addgroup ftpusers
 useradd -g ftpusers -s /sbin/nologin ftpuser
+usermod -a -G ftpusers $ADMINUSER
 useradd -s /sbin/nologin ftp
 FTPGID=$(getent group ftpusers | cut -d: -f3)
 FTPUID=$(id -u ftpuser)
@@ -74,7 +78,7 @@ CertFile	/ftp/ftp.pem
 PureDB	/ftp/ftp.pdb" >> /etc/pure-ftpd/pure-ftpd.conf
 
 chown -R ftpuser:ftpusers /ftp/
-find /ftp -type d -exec chmod 2750 {} \+
+find /ftp -type d -exec chmod 2760 {} \+
 find /ftp -type f -exec chmod 640 {} \+
 
 rm /var/www/html/*
