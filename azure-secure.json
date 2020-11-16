@@ -66,6 +66,10 @@
     "imagePublisher": "Canonical",
     "imageOffer": "UbuntuServer",
     "imageVersion": "18.04-LTS",
+    "asgName": "[concat(variables('scenarioPrefix'),'AppSecGroup')]",
+    "asgId": "[resourceId('Microsoft.Network/applicationSecurityGroups',variables('asgName'))]",
+    "nsgName": "[concat(variables('scenarioPrefix'),'NetSecGroup')]",
+    "nsgId": "[resourceId('Microsoft.Network/networkSecurityGroups',variables('nsgName'))]",
     "nicName": "[concat(variables('scenarioPrefix'),'Nic')]",
     "nicId" : "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]",
     "vnetCidrBlock": "10.0.0.0/16",
@@ -105,6 +109,90 @@
       ]
     },
     {
+      "name": "[variables('asgName')]",
+      "type": "Microsoft.Network/applicationSecurityGroups",
+      "apiVersion": "2020-04-01",
+      "location": "[parameters('location')]",
+      "properties": {}
+    },
+    {
+      "name": "[variables('nsgName')]",
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2020-05-01",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/applicationSecurityGroups/', variables('asgName'))]"
+      ],
+      "properties": {
+        "securityRules": [
+          {
+            "name": "AllowFtpAll",
+            "properties": {
+              "description": "Allow FTP traffic to VM",
+              "sourceAddressPrefix": "*",
+              "sourcePortRange": "*",
+              "direction": "Inbound",
+              "access": "Allow",
+              "priority": 100,
+              "protocol": "Tcp",
+              "destinationPortRange": "21",
+              "destinationApplicationSecurityGroups": [
+                { "id": "[variables('asgId')]" }
+              ]
+            }
+          },
+          {
+            "name": "AllowFtpPassiveAll",
+            "properties": {
+              "description": "Allow FTP passive traffic to VM",
+              "sourceAddressPrefix": "*",
+              "sourcePortRange": "*",
+              "direction": "Inbound",
+              "access": "Allow",
+              "priority": 110,
+              "protocol": "Tcp",
+              "destinationPortRange": "50000-50400",
+              "destinationApplicationSecurityGroups": [
+                { "id": "[variables('asgId')]" }
+              ]
+            }
+          },
+          {
+            "name": "AllowHttps",
+            "properties": {
+              "description": "Allow HTTPS traffic to VM",
+              "sourceAddressPrefix": "[parameters('httpsFrom')]",
+              "sourcePortRange": "*",
+              "direction": "Inbound",
+              "access": "Allow",
+              "priority": 200,
+              "protocol": "Tcp",
+              "destinationPortRange": "443",
+              "destinationApplicationSecurityGroups": [
+                { "id": "[variables('asgId')]" }
+              ]
+            }
+          },
+          {
+            "name": "AllowSsh",
+            "properties": {
+              "description": "Allow SSH traffic to VM",
+              "sourceAddressPrefix": "[parameters('sshFrom')]",
+              "sourcePortRange": "*",
+              "direction": "Inbound",
+              "access": "Allow",
+              "priority": 300,
+              "protocol": "Tcp",
+              "destinationPortRange": "22",
+              "destinationApplicationSecurityGroups": [
+                { "id": "[variables('asgId')]" }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
       "type": "Microsoft.Network/publicIPAddresses",
       "name": "[variables('publicIPAddressName')]",
       "apiVersion": "2018-04-01",
@@ -121,6 +209,9 @@
       "name": "[variables('virtualNetworkName')]",
       "apiVersion": "2018-04-01",
       "location": "[parameters('location')]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkSecurityGroups/', variables('nsgName'))]"
+      ],
       "properties": {
         "addressSpace": {
           "addressPrefixes": [
@@ -131,7 +222,10 @@
           {
             "name": "[variables('subnetName')]",
             "properties": {
-              "addressPrefix": "[variables('subnetCidrBlock')]"
+              "addressPrefix": "[variables('subnetCidrBlock')]",
+              "networkSecurityGroup": {
+                "id": "[variables('nsgId')]"
+              }
             }
           }
         ]
@@ -144,7 +238,8 @@
       "location": "[parameters('location')]",
       "dependsOn": [
         "[concat('Microsoft.Network/publicIPAddresses/', variables('publicIPAddressName'))]",
-        "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]"
+        "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
+        "[concat('Microsoft.Network/applicationSecurityGroups/', variables('asgName'))]"
       ],
       "properties": {
         "ipConfigurations": [
@@ -157,7 +252,10 @@
               },
               "subnet": {
                 "id": "[variables('subnetId')]"
-              }
+              },
+              "applicationSecurityGroups": [
+                { "id": "[variables('asgId')]" }
+              ]
             }
           }
         ]
