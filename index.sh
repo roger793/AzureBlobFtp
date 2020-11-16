@@ -16,8 +16,8 @@ echo "<!doctype html>
 <script src='./index.js'></script>
 </head>
 <body>
-<div class='container pt-5' aria-live='polite' aria-atomic='true'>
-    <div class='toast mt-3 mr-3' style='position:absolute; top:0; right:0;'>
+<div class='container pt-5'>
+    <div class='toast mt-3 mr-3' role='alert' aria-live='polite' aria-atomic='true' data-delay='10000' style='position:absolute; top:0; right:0;'>
         <div class='toast-header'>
         <svg width='1em' height='1em' viewBox='0 0 16 16' class='bi bi-app-indicator' fill='currentColor' xmlns='http://www.w3.org/2000/svg'>
             <path fill-rule='evenodd' d='M5.5 2A3.5 3.5 0 0 0 2 5.5v5A3.5 3.5 0 0 0 5.5 14h5a3.5 3.5 0 0 0 3.5-3.5V8a.5.5 0 0 1 1 0v2.5a4.5 4.5 0 0 1-4.5 4.5h-5A4.5 4.5 0 0 1 1 10.5v-5A4.5 4.5 0 0 1 5.5 1H8a.5.5 0 0 1 0 1H5.5z'/>
