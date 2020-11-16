@@ -3,6 +3,9 @@
 for i in "$@"
 do
 	case $i in
+		--ip=*)
+		IP="${i#*=}"
+		;;
 		--account=*)
 		ACCOUNT="${i#*=}"
 		;;
@@ -40,7 +43,9 @@ useradd -s /sbin/nologin ftp
 FTPGID=$(getent group ftpusers | cut -d: -f3)
 FTPUID=$(id -u ftpuser)
 
-echo "39800 39980" > /etc/pure-ftpd/conf/PassivePortRange
+echo $IP > /etc/pure-ftpd/conf/ForcePassiveIP
+echo "50000 50400" > /etc/pure-ftpd/conf/PassivePortRange
+echo "20" > /etc/pure-ftpd/conf/MaxClientsPerIP
 
 openssl dhparam -out /etc/ssl/private/pure-ftpd-dhparams.pem 3072
 openssl req -x509 -nodes -newkey rsa:2048 -keyout /ftp/ftp.pem -out /ftp/ftp.pem -days 3650 -subj "/C=US/ST=NY/L=NY/O=NY/OU=NY/CN=NY emailAddress=email@example.com"

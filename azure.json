@@ -1,5 +1,5 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
     "StorageAccountName": {
@@ -13,7 +13,7 @@
       "metadata": {
         "description": "The name of the container to use in the storage account."
       }
-    },	
+    },
     "vmSize": {
       "type": "string",
       "metadata": {
@@ -34,8 +34,23 @@
     },
     "dnsPrefix": {
       "type": "string",
+      "defaultValue": "volvodlgw",
       "metadata": {
         "description": "Unique DNS Name for the Public IP used to access the Virtual Machine."
+      }
+    },
+    "httpsFrom": {
+      "type": "string",
+      "defaultValue": "*",
+      "metadata": {
+        "description": "The IP address or CIDR block from where to allow HTTPS connections to Virtual Machine."
+      }
+    },
+    "sshFrom": {
+      "type": "string",
+      "defaultValue": "86.127.175.29",
+      "metadata": {
+        "description": "The IP address or CIDR block from where to allow SSH connections to Virtual Machine."
       }
     },
     "location": {
@@ -44,58 +59,44 @@
       "metadata": {
         "description": "Location for all resources, defaults to location of the resource group."
       }
-    },
-    "sshFrom": {
-      "type": "string",
-      "defaultValue": "*",
-      "metadata": {
-        "description": "The IP address or CIDR block from where to allow SSH connections to Virtual Machine."
-      }
-    },
-    "httpsFrom": {
-      "type": "string",
-      "defaultValue": "86.127.175.29",
-      "metadata": {
-        "description": "The IP address or CIDR block from where to allow HTTPS connections to Virtual Machine."
-      }
     }
   },
   "variables": {
     "scenarioPrefix": "blobstorageftp",
     "imagePublisher": "Canonical",
     "imageOffer": "UbuntuServer",
-    "ubuntuOSVersion": "20.04-LTS",
+    "imageVersion": "18.04-LTS",
     "asgName": "[concat(variables('scenarioPrefix'),'AppSecGroup')]",
     "asgId": "[resourceId('Microsoft.Network/applicationSecurityGroups',variables('asgName'))]",
     "nsgName": "[concat(variables('scenarioPrefix'),'NetSecGroup')]",
     "nsgId": "[resourceId('Microsoft.Network/networkSecurityGroups',variables('nsgName'))]",
     "nicName": "[concat(variables('scenarioPrefix'),'Nic')]",
     "nicId" : "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]",
-    "vnetAddressPrefix": "10.0.0.0/16",
+    "vnetCidrBlock": "10.0.0.0/16",
     "subnetName": "[concat(variables('scenarioPrefix'),'Subnet')]",
-    "subnetPrefix": "10.0.0.0/24",
+    "subnetCidrBlock": "10.0.0.0/24",
     "storageAccountType": "Standard_LRS",
     "publicIPAddressType": "Dynamic",
     "publicIPAddressName": "[concat(variables('scenarioPrefix'),'PublicIp')]",
     "publicIPAddressId": "[resourceId('Microsoft.Network/publicIPAddresses',variables('publicIPAddressName'))]",
     "vmName": "[concat(variables('scenarioPrefix'),'VM')]",
     "virtualNetworkName": "[concat(variables('scenarioPrefix'),'Vnet')]",
-    "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('subnetName'))]"
+    "subnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('subnetName'))]"
   },
   "resources": [
     {
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2019-06-01",
-      "name": "[variables('storageAccountType')]",
+      "name": "[parameters('storageAccountName')]",
       "location": "[resourceGroup().location]",
       "sku": {
-        "name": "[variables('publicIPAddressType')]"
+        "name": "[variables('storageAccountType')]"
       },
       "kind": "StorageV2",
       "properties": {},
       "resources": [
         {
-          "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+          "type": "blobServices/containers",
           "apiVersion": "2019-06-01",
           "name": "[concat('default/', parameters('StorageAccountContainerName'))]",
           "dependsOn": [
@@ -135,6 +136,22 @@
               "priority": 100,
               "protocol": "Tcp",
               "destinationPortRange": "21",
+              "destinationApplicationSecurityGroups": [
+                { "id": "[variables('asgId')]" }
+              ]
+            }
+          },
+          {
+            "name": "AllowFtpPassiveAll",
+            "properties": {
+              "description": "Allow FTP passive traffic to VM",
+              "sourceAddressPrefix": "*",
+              "sourcePortRange": "*",
+              "direction": "Inbound",
+              "access": "Allow",
+              "priority": 110,
+              "protocol": "Tcp",
+              "destinationPortRange": "50000-50400",
               "destinationApplicationSecurityGroups": [
                 { "id": "[variables('asgId')]" }
               ]
@@ -198,14 +215,14 @@
       "properties": {
         "addressSpace": {
           "addressPrefixes": [
-            "[variables('vnetAddressPrefix')]"
+            "[variables('vnetCidrBlock')]"
           ]
         },
         "subnets": [
           {
             "name": "[variables('subnetName')]",
             "properties": {
-              "addressPrefix": "[variables('subnetPrefix')]",
+              "addressPrefix": "[variables('subnetCidrBlock')]",
               "networkSecurityGroup": {
                 "id": "[variables('nsgId')]"
               }
@@ -234,7 +251,7 @@
                 "id": "[variables('publicIPAddressId')]"
               },
               "subnet": {
-                "id": "[variables('subnetRef')]"
+                "id": "[variables('subnetId')]"
               },
               "applicationSecurityGroups": [
                 { "id": "[variables('asgId')]" }
@@ -251,7 +268,8 @@
       "location": "[parameters('location')]",
       "dependsOn": [
         "[concat('Microsoft.Network/networkInterfaces/', variables('nicName'))]",
-		    "[parameters('StorageAccountName')]"
+		    "[parameters('StorageAccountName')]",
+        "[parameters('StorageAccountContainerName')]"
       ],
       "properties": {
         "hardwareProfile": {
@@ -270,7 +288,7 @@
           "imageReference": {
             "publisher": "[variables('imagePublisher')]",
             "offer": "[variables('imageOffer')]",
-            "sku": "[variables('ubuntuOSVersion')]",
+            "sku": "[variables('imageVersion')]",
             "version": "latest"
           }
         },
@@ -296,7 +314,7 @@
         "autoUpgradeMinorVersion": true,
         "settings": {
           "fileUris": "[split('https://raw.githubusercontent.com/thebe14/AzureBlobFtp/master/install.sh', ' ')]",
-          "commandToExecute": "[concat('bash install.sh --account=', parameters('StorageAccountName'), ' --key=', listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value, ' --container=' , parameters('StorageAccountContainerName'), ' --adminuser=' , parameters('username'), ' --adminpassword=' , parameters('password'))]"
+          "commandToExecute": "[concat('bash install.sh --ip=', reference(variables('publicIPAddressId')).IpAddress, ' --account=', parameters('StorageAccountName'), ' --key=', listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value, ' --container=' , parameters('StorageAccountContainerName'), ' --adminuser=' , parameters('username'), ' --adminpassword=' , parameters('password'))]"
         }
       }
     }
