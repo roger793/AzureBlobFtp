@@ -39,20 +39,6 @@
         "description": "Unique DNS Name for the Public IP used to access the Virtual Machine."
       }
     },
-    "httpsFrom": {
-      "type": "string",
-      "defaultValue": "*",
-      "metadata": {
-        "description": "The IP address or CIDR block from where to allow HTTPS connections to Virtual Machine."
-      }
-    },
-    "sshFrom": {
-      "type": "string",
-      "defaultValue": "86.127.175.29",
-      "metadata": {
-        "description": "The IP address or CIDR block from where to allow SSH connections to Virtual Machine."
-      }
-    },
     "location": {
       "type": "string",
       "defaultValue": "[resourceGroup().location]",
