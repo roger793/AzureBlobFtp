@@ -47,8 +47,8 @@ case $option in
                 echo "<script>notify('Account was created for dealer $username');</script>"
         ;;
         "addsup") #Add a supervisor
-                ( echo ${password} ; echo ${password} ) | pure-pw useradd $username -f /ftp/ftp.passwd -u ftpuser -d /ftp/ftp-files/import > /dev/null 2>&1
-                mkdir /ftp/ftp-files/import
+                ( echo ${password} ; echo ${password} ) | pure-pw useradd $username -f /ftp/ftp.passwd -u ftpuser -d /ftp/ftp-files/production > /dev/null 2>&1
+                mkdir /ftp/ftp-files/production
                 pure-pw mkdb  /ftp/ftp.pdb -f /ftp/ftp.passwd
                 echo "<script>notify('Account was created for supervisor $username');</script>"
         ;;
