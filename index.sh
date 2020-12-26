@@ -109,6 +109,7 @@ echo "
         <button type='button' class='btn btn-outline-secondary' id='cancel' hidden>Cancel</button>
     </form>
 </div>
+<br/><br/><br/>
 </body>
 </html>
 "

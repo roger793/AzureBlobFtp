@@ -16,6 +16,7 @@
     },
     "vmSize": {
       "type": "string",
+      "defaultValue": "B1ms",
       "metadata": {
         "description": "The size of Azure VM (e.g. A1_v2)"
       }
@@ -34,7 +35,7 @@
     },
     "dnsPrefix": {
       "type": "string",
-      "defaultValue": "volvodlgw",
+      "defaultValue": "volvogw",
       "metadata": {
         "description": "Unique DNS Name for the Public IP used to access the Virtual Machine."
       }
